@@ -211,7 +211,7 @@ async function loadLive(){
   document.getElementById('tbl').innerHTML='<div class="loader">⏳ Programs load ho rahe hain...</div>';
   const creds=btoa(user+':'+token);
   try{
-    const resp=await fetch('/api/h1',{
+    const resp=await fetch('/api/h1?path=/v1/hackers/programs',{
       headers:{'Authorization':`Basic ${creds}`,'Accept':'application/json'}
     });
     if(resp.status===401) throw new Error('401 — Username ya token galat hai');
