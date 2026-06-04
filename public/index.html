@@ -4,254 +4,907 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>H1 Recon Console</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"Courier New",monospace;background:#0f0f0f;color:#e0e0e0;padding:24px;min-height:100vh}
-.wrap{max-width:900px;margin:0 auto}
-.topbar{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #2a2a2a}
-.logo{font-size:14px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#888}
-.logo span{color:#fff}
-.badge{font-size:11px;padding:3px 10px;border-radius:4px;margin-left:auto;font-weight:600}
-.badge.demo{background:#3a2e00;color:#fbbf24}
-.badge.live{background:#003a1a;color:#34d399}
-.badge.err{background:#3a0000;color:#f87171}
-.api-row{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;margin-bottom:8px}
-input{font-family:"Courier New",monospace;font-size:12px;padding:8px 12px;border:1px solid #2a2a2a;border-radius:6px;background:#1a1a1a;color:#e0e0e0;width:100%}
-input:focus{outline:none;border-color:#555}
-.btn{font-family:"Courier New",monospace;font-size:12px;padding:8px 16px;border:1px solid #2a2a2a;border-radius:6px;background:#1a1a1a;color:#e0e0e0;cursor:pointer;white-space:nowrap;transition:all .15s}
-.btn:hover{background:#2a2a2a;border-color:#444}
-.btn.primary{background:#e0e0e0;color:#0f0f0f;border-color:#e0e0e0;font-weight:700}
-.btn.primary:hover{background:#fff}
-.notice{font-size:11px;padding:8px 12px;border-radius:6px;margin-bottom:12px;line-height:1.6;border:1px solid}
-.notice.info{background:#001a33;color:#60a5fa;border-color:#1e3a5f}
-.notice.warn{background:#2a1a00;color:#fbbf24;border-color:#5a3e00}
-.notice.err{background:#2a0000;color:#f87171;border-color:#5a1a1a}
-.notice.ok{background:#002a12;color:#34d399;border-color:#005a28}
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
-.stat{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:12px 14px}
-.stat-n{font-size:22px;font-weight:700;color:#fff}
-.stat-l{font-size:10px;color:#666;margin-top:3px;text-transform:uppercase;letter-spacing:.06em}
-.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.pill{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid #2a2a2a;background:#1a1a1a;color:#888;cursor:pointer;transition:all .15s}
-.pill:hover{border-color:#555;color:#ccc}
-.pill.active{background:#e0e0e0;color:#0f0f0f;border-color:#e0e0e0;font-weight:700}
-.table-wrap{border:1px solid #2a2a2a;border-radius:10px;overflow:hidden;margin-bottom:14px}
-table{width:100%;border-collapse:collapse;font-size:12px}
-thead tr{background:#1a1a1a}
-th{padding:9px 11px;text-align:left;color:#666;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid #2a2a2a}
-td{padding:10px 11px;border-bottom:1px solid #1a1a1a;color:#ccc;vertical-align:middle}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:#1a1a1a}
-.score{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-size:11px;font-weight:700}
-.score.high{background:#003a1a;color:#34d399}
-.score.med{background:#2a1a00;color:#fbbf24}
-.score.low{background:#2a0000;color:#f87171}
-.tag{display:inline-block;font-size:10px;padding:2px 6px;border-radius:3px;margin-right:3px;font-weight:600}
-.tag.url{background:#001a33;color:#60a5fa}
-.tag.ios{background:#1a0033;color:#a78bfa}
-.tag.android{background:#003a1a;color:#34d399}
-.tag.api{background:#2a1a00;color:#fbbf24}
-.tag.fresh{background:#003a1a;color:#34d399}
-.row-actions{display:flex;gap:4px}
-.empty{text-align:center;padding:3rem 1rem;color:#444;font-size:13px}
-.detail-box{background:#1a1a1a;border-radius:10px;border:1px solid #2a2a2a;padding:16px;margin-bottom:14px}
-.detail-box h3{font-size:14px;font-weight:700;margin-bottom:10px;color:#fff}
-.scope-item{padding:5px 0;border-bottom:1px solid #2a2a2a;display:flex;align-items:center;gap:8px;color:#888;font-size:11px}
-.scope-item:last-child{border:none}
-.sdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:#34d399}
-.loader{text-align:center;padding:2rem;color:#666;font-size:12px}
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --surface2: #1a1a24;
+  --border: #2a2a3a;
+  --border2: #3a3a4a;
+  --text: #e8e8f0;
+  --muted: #6b6b80;
+  --accent: #7c6aff;
+  --accent2: #ff6ab0;
+  --green: #2ecc71;
+  --yellow: #f1c40f;
+  --red: #e74c3c;
+  --blue: #3498db;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Syne', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* GRID BG */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(124,106,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,106,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container { max-width: 1100px; margin: 0 auto; padding: 24px; position: relative; z-index: 1; }
+
+/* HEADER */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.logo {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+.logo .accent { color: var(--accent); }
+.logo .accent2 { color: var(--accent2); }
+.tagline { font-size: 11px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
+.status-badge {
+  margin-left: auto;
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  border: 1px solid;
+}
+.status-badge.demo { background: rgba(241,196,15,.1); color: var(--yellow); border-color: rgba(241,196,15,.3); }
+.status-badge.live { background: rgba(46,204,113,.1); color: var(--green); border-color: rgba(46,204,113,.3); }
+.status-badge.loading { background: rgba(124,106,255,.1); color: var(--accent); border-color: rgba(124,106,255,.3); }
+
+/* SETUP CARD */
+.setup-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  animation: fadeIn .4s ease;
+}
+.setup-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 12px;
+}
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 10px;
+}
+input[type=text], input[type=password] {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 10px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  width: 100%;
+  transition: border-color .2s;
+}
+input:focus { outline: none; border-color: var(--accent); }
+input::placeholder { color: var(--muted); }
+.btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .2s;
+  letter-spacing: .04em;
+}
+.btn:hover { border-color: var(--border2); background: #222230; }
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.btn.primary:hover { background: #6a58ee; }
+.btn-row { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
+
+/* NOTICE */
+.notice {
+  font-size: 11px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  line-height: 1.6;
+  border: 1px solid;
+}
+.notice.info { background: rgba(52,152,219,.08); color: #60b4e8; border-color: rgba(52,152,219,.2); }
+.notice.ok { background: rgba(46,204,113,.08); color: #5ddb8a; border-color: rgba(46,204,113,.2); }
+.notice.err { background: rgba(231,76,60,.08); color: #f07464; border-color: rgba(231,76,60,.2); }
+.notice.warn { background: rgba(241,196,15,.08); color: #f5d14a; border-color: rgba(241,196,15,.2); }
+
+/* STATS */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  transition: border-color .2s;
+}
+.stat-card:hover { border-color: var(--border2); }
+.stat-val {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+}
+.stat-label {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-top: 4px;
+}
+
+/* FILTERS */
+.filter-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  align-items: center;
+}
+.filter-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-right: 4px; }
+.pill {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+}
+.pill:hover { border-color: var(--border2); color: var(--text); }
+.pill.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+
+/* SORT BAR */
+.sort-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+.sort-btn {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.sort-btn:hover { color: var(--text); border-color: var(--border2); }
+.sort-btn.active { color: var(--accent); border-color: var(--accent); }
+
+/* TABLE */
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead tr { background: var(--surface2); }
+th {
+  padding: 10px 12px;
+  text-align: left;
+  color: var(--muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  border-bottom: 1px solid var(--border);
+  font-weight: 500;
+}
+td {
+  padding: 11px 12px;
+  border-bottom: 1px solid rgba(42,42,58,.6);
+  color: var(--text);
+  vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(124,106,255,.04); }
+
+/* SCORE CIRCLE */
+.score-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  border: 2px solid;
+}
+.score-circle.high { background: rgba(46,204,113,.12); color: #2ecc71; border-color: rgba(46,204,113,.4); }
+.score-circle.med { background: rgba(241,196,15,.12); color: #f1c40f; border-color: rgba(241,196,15,.4); }
+.score-circle.low { background: rgba(231,76,60,.12); color: #e74c3c; border-color: rgba(231,76,60,.4); }
+
+/* TAGS */
+.tag {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-right: 3px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.tag.url { background: rgba(52,152,219,.15); color: #60b4e8; }
+.tag.ios { background: rgba(124,106,255,.15); color: #a89bff; }
+.tag.android { background: rgba(46,204,113,.15); color: #5ddb8a; }
+.tag.api { background: rgba(241,196,15,.15); color: #f5d14a; }
+.tag.other { background: rgba(107,107,128,.15); color: var(--muted); }
+.tag.fresh { background: rgba(46,204,113,.15); color: #5ddb8a; }
+.tag.hot { background: rgba(231,76,60,.15); color: #f07464; }
+.tag.managed { background: rgba(124,106,255,.15); color: #a89bff; }
+
+/* ACTIONS */
+.action-btn {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+  margin-right: 4px;
+}
+.action-btn:hover { color: var(--text); border-color: var(--border2); }
+.action-btn.primary-action { color: var(--accent); border-color: rgba(124,106,255,.4); }
+.action-btn.primary-action:hover { background: rgba(124,106,255,.1); }
+
+/* DETAIL PANEL */
+.detail-panel {
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  animation: slideIn .2s ease;
+}
+@keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.detail-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.detail-name {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+}
+.detail-handle { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.detail-stat {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.detail-stat-val { font-size: 16px; font-weight: 700; color: var(--text); }
+.detail-stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 2px; }
+
+/* SCOPE LIST */
+.scope-section { margin-bottom: 14px; }
+.scope-title {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 8px;
+}
+.scope-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(42,42,58,.6);
+  font-size: 11px;
+}
+.scope-item:last-child { border: none; }
+.scope-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+/* HUNTING GUIDE */
+.guide-section {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 14px;
+  margin-top: 12px;
+  border: 1px solid rgba(124,106,255,.2);
+}
+.guide-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 10px;
+}
+.guide-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.guide-num {
+  background: rgba(124,106,255,.2);
+  color: var(--accent);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.guide-text { color: #b8b8cc; }
+
+/* BOUNTY BAR */
+.bounty-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.bounty-val { color: var(--green); font-weight: 700; }
+.bounty-vdp { color: var(--muted); }
+
+/* EMPTY */
+.empty {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--muted);
+}
+.empty-icon { font-size: 32px; margin-bottom: 12px; }
+.empty-text { font-size: 13px; }
+
+/* LOADING */
+.loader {
+  text-align: center;
+  padding: 40px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.loader::after {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  margin: 12px auto 0;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* PROGRESS */
+.progress-bar {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 2px;
+  transition: width .3s ease;
+}
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  padding: 20px 0 8px;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: .06em;
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+}
+
+@media (max-width: 700px) {
+  .stats-grid { grid-template-columns: repeat(3, 1fr); }
+  .input-row { grid-template-columns: 1fr 1fr; }
+  .input-row .btn { grid-column: span 2; }
+  .detail-grid { grid-template-columns: repeat(2, 1fr); }
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="topbar">
-    <div class="logo"><span>H1</span> Recon Console</div>
-    <span class="badge demo" id="badge">● DEMO</span>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="logo">H1<span class="accent">Recon</span><span class="accent2">.</span></div>
+      <div class="tagline">Bug Bounty Target Intelligence</div>
+    </div>
+    <span class="status-badge demo" id="badge">● DEMO MODE</span>
   </div>
 
-  <div class="notice info">
-    <strong>Setup:</strong> H1 username + API token daalo → Fetch karo. Proxy same domain pe hai, CORS nahi hoga.
+  <!-- SETUP -->
+  <div class="setup-card">
+    <div class="setup-title">// Connect HackerOne API</div>
+    <div id="msg"></div>
+    <div class="input-row">
+      <input type="text" id="h1-user" placeholder="H1 username (e.g. sahilkushwaha275)" autocomplete="off">
+      <input type="password" id="h1-token" placeholder="API token from H1 settings" autocomplete="off">
+      <button class="btn primary" onclick="loadLive()">▶ FETCH</button>
+    </div>
+    <div id="progress-wrap" style="display:none">
+      <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="loadDemo()">Load Demo</button>
+      <button class="btn" onclick="showGuide()">📖 How to get API token</button>
+    </div>
   </div>
 
-  <div class="api-row">
-    <input type="text" id="h1-user" placeholder="HackerOne username" autocomplete="off">
-    <input type="password" id="h1-token" placeholder="HackerOne API token" autocomplete="off">
-    <button class="btn primary" onclick="loadLive()">▶ Fetch</button>
-  </div>
-  <div style="display:flex;gap:6px;margin-bottom:16px;justify-content:flex-end">
-    <button class="btn" onclick="loadDemo()">Demo data</button>
-  </div>
-
-  <div id="msg"></div>
-
-  <div class="stats-row">
-    <div class="stat"><div class="stat-n" id="s-total">—</div><div class="stat-l">Programs</div></div>
-    <div class="stat"><div class="stat-n" id="s-pay">—</div><div class="stat-l">Paying</div></div>
-    <div class="stat"><div class="stat-n" id="s-fresh">—</div><div class="stat-l">Fresh targets</div></div>
-    <div class="stat"><div class="stat-n" id="s-avg">—</div><div class="stat-l">Avg score</div></div>
+  <!-- API GUIDE -->
+  <div id="api-guide" style="display:none" class="detail-panel">
+    <div class="detail-name" style="font-size:15px;margin-bottom:12px">How to get your H1 API Token</div>
+    <div class="guide-item"><div class="guide-num">1</div><div class="guide-text">Go to <strong style="color:#a89bff">hackerone.com/settings/api_token/edit</strong></div></div>
+    <div class="guide-item"><div class="guide-num">2</div><div class="guide-text">Click <strong>"Generate API token"</strong></div></div>
+    <div class="guide-item"><div class="guide-num">3</div><div class="guide-text">Token generate hoga — <strong style="color:#f07464">ABHI copy karo</strong>, sirf ek baar dikhta hai</div></div>
+    <div class="guide-item"><div class="guide-num">4</div><div class="guide-text">Username = tera H1 profile username (e.g. sahilkushwaha275)</div></div>
+    <div class="guide-item"><div class="guide-num">5</div><div class="guide-text">Dono daalo upar → Fetch karo → Live data aayega</div></div>
+    <button class="btn" onclick="document.getElementById('api-guide').style.display='none'" style="margin-top:12px">Close</button>
   </div>
 
-  <div class="filters">
+  <!-- STATS -->
+  <div class="stats-grid" id="stats-grid">
+    <div class="stat-card"><div class="stat-val" id="s-total">—</div><div class="stat-label">Programs</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-pay" style="color:#2ecc71">—</div><div class="stat-label">Paying</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-fresh" style="color:#7c6aff">—</div><div class="stat-label">Fresh Targets</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-managed" style="color:#f1c40f">—</div><div class="stat-label">Managed Triage</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-avg" style="color:#ff6ab0">—</div><div class="stat-label">Avg Score</div></div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filter-row">
+    <span class="filter-label">Filter:</span>
     <span class="pill active" onclick="setF(this,'all')">All</span>
     <span class="pill" onclick="setF(this,'paying')">💰 Paying</span>
     <span class="pill" onclick="setF(this,'fresh')">🌿 Fresh</span>
+    <span class="pill" onclick="setF(this,'managed')">🛡 Managed</span>
     <span class="pill" onclick="setF(this,'web')">🌐 Web</span>
     <span class="pill" onclick="setF(this,'mobile')">📱 Mobile</span>
     <span class="pill" onclick="setF(this,'api')">⚙️ API</span>
-    <span class="pill" onclick="setF(this,'top')">⭐ Score ≥ 70</span>
+    <span class="pill" onclick="setF(this,'top')">⭐ Top Picks</span>
   </div>
 
-  <div id="tbl"><div class="empty">Load programs to begin recon</div></div>
+  <!-- SORT -->
+  <div class="sort-bar">
+    <span class="filter-label">Sort:</span>
+    <button class="sort-btn active" onclick="setSort(this,'score')">Score</button>
+    <button class="sort-btn" onclick="setSort(this,'bounty')">Bounty</button>
+    <button class="sort-btn" onclick="setSort(this,'fresh')">Freshness</button>
+    <button class="sort-btn" onclick="setSort(this,'name')">Name</button>
+  </div>
+
+  <!-- TABLE -->
+  <div id="tbl"><div class="empty"><div class="empty-icon">🎯</div><div class="empty-text">Load your H1 programs to begin target selection</div></div></div>
+
+  <!-- DETAIL PANEL -->
   <div id="detail"></div>
+
+  <div class="footer">H1RECON — Bug Bounty Target Intelligence Dashboard</div>
 </div>
 
 <script>
-let all = [], filt = 'all';
+// ─── CONFIG ───────────────────────────────────────────
+const PROXY = 'https://h1-proxy.vercel.app/api/h1';
 
+// Known bounty ranges (H1 API doesn't return bounty for hackers)
+const KNOWN_BOUNTIES = {
+  'security':20000,'cloudflare':25000,'coinbase':50000,'slack':20000,
+  'linkedin':5000,'x':15000,'vimeo':5000,'tinder':5000,'att':3000,
+  'priceline':10000,'basecamp':10000,'automattic':1000,'wordpress':5000,
+  'django':3000,'irccloud':500,'shopify':20000,'gitlab':12000,
+  'newrelic':5000,'semrush':4000,'grab':10000,'instacart':3000,
+  'dropbox':32768,'twitter':15000,'phabricator':3000,'mavenlink':500,
+  'khanacademy':0,'formassembly':0,'publitas':0,'concretecms':0,
+  'stopthehacker':0,'rails':0,'iandunn-projects':400,'urbandictionary':0,
+  'irccloud':500
+};
+
+// Hunting strategies per program type
+const HUNT_STRATEGIES = {
+  web: ['IDOR / Broken Access Control — test object references', 'XSS in user inputs, profile fields, search', 'CSRF on sensitive actions', 'Subdomain takeover recon', 'API endpoint enumeration'],
+  mobile: ['Deep link hijacking', 'Insecure data storage (SQLite, SharedPrefs)', 'Traffic interception (MitM)', 'Authentication bypass via token manipulation', 'Exported Activities/Content Providers'],
+  api: ['Mass assignment vulnerabilities', 'Rate limiting bypass', 'JWT manipulation / alg:none', 'BOLA / BFLA (broken object/function level auth)', 'GraphQL introspection abuse'],
+};
+
+// ─── STATE ────────────────────────────────────────────
+let all = [], filt = 'all', sortBy = 'score';
+
+// ─── DEMO DATA ────────────────────────────────────────
 const DEMO = [
-  {handle:'shopify',name:'Shopify',bounty:true,max_bounty:20000,reports:4200,scope_types:['url','android','ios'],scope:['*.shopify.com','*.myshopify.com','Shopify Android','Shopify iOS'],rt:2,managed:true},
-  {handle:'gitlab',name:'GitLab',bounty:true,max_bounty:12000,reports:3100,scope_types:['url','api'],scope:['gitlab.com','*.gitlab.com'],rt:3,managed:true},
-  {handle:'newrelic',name:'New Relic',bounty:true,max_bounty:5000,reports:410,scope_types:['url','api'],scope:['*.newrelic.com','NR API'],rt:1,managed:true},
-  {handle:'semrush',name:'Semrush',bounty:true,max_bounty:4000,reports:280,scope_types:['url','api'],scope:['*.semrush.com','semrush API'],rt:2,managed:true},
-  {handle:'grab',name:'Grab',bounty:true,max_bounty:10000,reports:520,scope_types:['url','api','android','ios'],scope:['*.grab.com','Grab API','Grab Android','Grab iOS'],rt:2,managed:true},
-  {handle:'instacart',name:'Instacart',bounty:true,max_bounty:3000,reports:175,scope_types:['url'],scope:['instacart.com','*.instacart.com'],rt:3,managed:true},
-  {handle:'twitter',name:'X / Twitter',bounty:true,max_bounty:15000,reports:8900,scope_types:['url','api','ios','android'],scope:['twitter.com','api.twitter.com','iOS','Android'],rt:7,managed:false},
-  {handle:'curl',name:'curl / libcurl',bounty:false,max_bounty:0,reports:190,scope_types:['api'],scope:['curl source code'],rt:1,managed:false},
-  {handle:'automattic',name:'Automattic',bounty:true,max_bounty:7500,reports:1200,scope_types:['url','api'],scope:['wordpress.com','Jetpack'],rt:3,managed:true},
-  {handle:'dropbox',name:'Dropbox',bounty:true,max_bounty:32768,reports:6700,scope_types:['url','api','android','ios'],scope:['dropbox.com','api.dropboxapi.com','Android','iOS'],rt:5,managed:true},
+  {handle:'coinbase',name:'Coinbase',bounty:true,scope_types:['url','api'],scope:['*.coinbase.com','*.cbhq.net','com.coinbase.android'],rt:3,managed:true,open_scope:true,reports_hint:0},
+  {handle:'cloudflare',name:'Cloudflare',bounty:true,scope_types:['url','api'],scope:['*.cloudflare.com','cloudflare.com'],rt:5,managed:true,open_scope:true,reports_hint:0},
+  {handle:'slack',name:'Slack',bounty:true,scope_types:['url','api','ios','android'],scope:['slack.com','*.slack.com','iOS App','Android App'],rt:3,managed:true,open_scope:false,reports_hint:300},
+  {handle:'shopify',name:'Shopify',bounty:true,scope_types:['url','android','ios'],scope:['*.shopify.com','*.myshopify.com','Shopify Android','Shopify iOS'],rt:2,managed:true,open_scope:true,reports_hint:400},
+  {handle:'priceline',name:'Priceline',bounty:true,scope_types:['url','api'],scope:['*.priceline.com'],rt:2,managed:true,open_scope:false,reports_hint:0},
+  {handle:'vimeo',name:'Vimeo',bounty:true,scope_types:['url','api'],scope:['vimeo.com','*.vimeo.com'],rt:3,managed:true,open_scope:false,reports_hint:100},
+  {handle:'tinder',name:'Tinder',bounty:true,scope_types:['url','ios','android'],scope:['tinder.com','iOS App','Android App'],rt:3,managed:true,open_scope:false,reports_hint:50},
+  {handle:'x',name:'X / xAI',bounty:true,scope_types:['url','api','ios','android'],scope:['twitter.com','api.twitter.com','iOS','Android'],rt:7,managed:false,open_scope:false,reports_hint:800},
+  {handle:'wordpress',name:'WordPress',bounty:true,scope_types:['url','api'],scope:['wordpress.org','*.wordpress.org'],rt:5,managed:false,open_scope:false,reports_hint:200},
+  {handle:'automattic',name:'Automattic',bounty:true,scope_types:['url','api'],scope:['wordpress.com','*.wordpress.com'],rt:3,managed:false,open_scope:false,reports_hint:100},
+  {handle:'basecamp',name:'Basecamp',bounty:true,scope_types:['url','api'],scope:['3.basecamp.com','*.hey.com'],rt:2,managed:false,open_scope:false,reports_hint:0},
+  {handle:'att',name:'AT&T',bounty:true,scope_types:['url','api'],scope:['att.com','signin.att.com','identity.att.com'],rt:3,managed:true,open_scope:false,reports_hint:0},
+  {handle:'django',name:'Django',bounty:true,scope_types:['api'],scope:['Django source code'],rt:3,managed:false,open_scope:false,reports_hint:0},
+  {handle:'linkedin',name:'LinkedIn',bounty:true,scope_types:['url','api','ios','android'],scope:['linkedin.com','*.linkedin.com'],rt:5,managed:true,open_scope:false,reports_hint:500},
+  {handle:'rails',name:'Ruby on Rails',bounty:false,scope_types:['api'],scope:['github.com/rails'],rt:3,managed:false,open_scope:false,reports_hint:0},
+  {handle:'khanacademy',name:'Khan Academy',bounty:false,scope_types:['url'],scope:['*.khanacademy.org'],rt:3,managed:false,open_scope:false,reports_hint:0},
 ];
 
-function calcScore(p){
-  let s=0;
-  if(p.bounty) s+=25;
-  s+=p.max_bounty>=10000?20:p.max_bounty>=5000?15:p.max_bounty>=1000?8:0;
-  s+=Math.max(0,30-Math.round((p.reports||0)/200));
-  s+=p.rt<=2?15:p.rt<=4?8:3;
-  if(p.managed) s+=10;
-  s+=Math.min(new Set(p.scope_types).size*4,12);
-  return Math.min(s,100);
+// ─── SCORING ──────────────────────────────────────────
+function calcScore(p) {
+  let s = 0;
+  const bounty = KNOWN_BOUNTIES[p.handle] || 0;
+  if(p.bounty) s += 20;
+  s += bounty >= 20000 ? 20 : bounty >= 10000 ? 15 : bounty >= 5000 ? 10 : bounty >= 1000 ? 5 : 0;
+  const freshness = Math.max(0, 25 - Math.round((p.reports_hint||0) / 50));
+  s += freshness;
+  s += p.rt <= 2 ? 15 : p.rt <= 4 ? 10 : p.rt <= 6 ? 5 : 0;
+  if(p.managed) s += 10;
+  if(p.open_scope) s += 5;
+  const variety = new Set(p.scope_types).size;
+  s += Math.min(variety * 3, 9);
+  return Math.min(s, 100);
 }
-function isFresh(p){return(p.reports||0)<600;}
-function showMsg(txt,type){document.getElementById('msg').innerHTML=txt?`<div class="notice ${type}">${txt}</div>`:'';}
-function updateStats(){
-  document.getElementById('s-total').textContent=all.length;
-  document.getElementById('s-pay').textContent=all.filter(p=>p.bounty).length;
-  document.getElementById('s-fresh').textContent=all.filter(p=>isFresh(p)).length;
-  document.getElementById('s-avg').textContent=all.length?Math.round(all.reduce((a,p)=>a+p._score,0)/all.length):'—';
+
+function isFresh(p) { return (p.reports_hint||0) < 200; }
+
+// ─── UTILS ────────────────────────────────────────────
+function showMsg(txt, type) {
+  document.getElementById('msg').innerHTML = txt
+    ? `<div class="notice ${type}" style="margin-bottom:10px">${txt}</div>` : '';
 }
-function render(){
-  let progs=[...all];
-  if(filt==='paying') progs=progs.filter(p=>p.bounty);
-  else if(filt==='fresh') progs=progs.filter(p=>isFresh(p));
-  else if(filt==='web') progs=progs.filter(p=>p.scope_types.includes('url'));
-  else if(filt==='mobile') progs=progs.filter(p=>p.scope_types.includes('ios')||p.scope_types.includes('android'));
-  else if(filt==='api') progs=progs.filter(p=>p.scope_types.includes('api'));
-  else if(filt==='top') progs=progs.filter(p=>p._score>=70);
-  progs.sort((a,b)=>b._score-a._score);
-  if(!progs.length){document.getElementById('tbl').innerHTML='<div class="table-wrap"><div class="empty">No programs match</div></div>';return;}
-  const rows=progs.map(p=>{
-    const sc=p._score>=70?'high':p._score>=45?'med':'low';
-    const types=[...new Set(p.scope_types)].slice(0,3).map(t=>`<span class="tag ${t}">${t.toUpperCase()}</span>`).join('');
-    const ftag=isFresh(p)?'<span class="tag fresh">FRESH</span>':'';
+
+function updateStats() {
+  document.getElementById('s-total').textContent = all.length;
+  document.getElementById('s-pay').textContent = all.filter(p=>p.bounty).length;
+  document.getElementById('s-fresh').textContent = all.filter(p=>isFresh(p)).length;
+  document.getElementById('s-managed').textContent = all.filter(p=>p.managed).length;
+  document.getElementById('s-avg').textContent = all.length
+    ? Math.round(all.reduce((a,p)=>a+p._score,0)/all.length) : '—';
+}
+
+function getBountyDisplay(p) {
+  const b = KNOWN_BOUNTIES[p.handle] || 0;
+  if(!p.bounty) return `<span class="bounty-vdp">VDP</span>`;
+  if(b > 0) return `<span class="bounty-val">$${b.toLocaleString()}</span>`;
+  return `<span class="bounty-val">✓ Paid</span>`;
+}
+
+function getHuntingStrategy(p) {
+  const types = new Set(p.scope_types);
+  let tips = [];
+  if(types.has('url')) tips = tips.concat(HUNT_STRATEGIES.web.slice(0,3));
+  if(types.has('android')||types.has('ios')) tips = tips.concat(HUNT_STRATEGIES.mobile.slice(0,2));
+  if(types.has('api')) tips = tips.concat(HUNT_STRATEGIES.api.slice(0,2));
+  return [...new Set(tips)].slice(0,5);
+}
+
+// ─── RENDER ───────────────────────────────────────────
+function render() {
+  let progs = [...all];
+
+  if(filt==='paying') progs = progs.filter(p=>p.bounty);
+  else if(filt==='fresh') progs = progs.filter(p=>isFresh(p));
+  else if(filt==='managed') progs = progs.filter(p=>p.managed);
+  else if(filt==='web') progs = progs.filter(p=>p.scope_types.includes('url'));
+  else if(filt==='mobile') progs = progs.filter(p=>p.scope_types.includes('ios')||p.scope_types.includes('android'));
+  else if(filt==='api') progs = progs.filter(p=>p.scope_types.includes('api'));
+  else if(filt==='top') progs = progs.filter(p=>p._score>=70);
+
+  if(sortBy==='score') progs.sort((a,b)=>b._score-a._score);
+  else if(sortBy==='bounty') progs.sort((a,b)=>(KNOWN_BOUNTIES[b.handle]||0)-(KNOWN_BOUNTIES[a.handle]||0));
+  else if(sortBy==='fresh') progs.sort((a,b)=>(a.reports_hint||0)-(b.reports_hint||0));
+  else if(sortBy==='name') progs.sort((a,b)=>a.name.localeCompare(b.name));
+
+  if(!progs.length) {
+    document.getElementById('tbl').innerHTML =
+      `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">No programs match this filter</div></div>`;
+    return;
+  }
+
+  const rows = progs.map(p => {
+    const sc = p._score>=70?'high':p._score>=45?'med':'low';
+    const types = [...new Set(p.scope_types)].slice(0,4)
+      .map(t=>`<span class="tag ${t}">${t}</span>`).join('');
+    const freshTag = isFresh(p) ? '<span class="tag fresh">fresh</span>' : '<span class="tag hot">hunted</span>';
+    const managedTag = p.managed ? '<span class="tag managed">managed</span>' : '';
+
     return `<tr>
-      <td><span class="score ${sc}">${p._score}</span></td>
-      <td style="font-weight:700;color:#fff">${p.name}<br><span style="font-size:10px;color:#555">${p.handle}</span></td>
-      <td>${p.bounty?`<span style="color:#34d399;font-weight:700">$${p.max_bounty.toLocaleString()}</span>`:'<span style="color:#444">VDP</span>'}</td>
-      <td style="color:${(p.reports||0)>2000?'#f87171':'#ccc'}">${(p.reports||0)>0?p.reports.toLocaleString():'—'}</td>
-      <td>${types}${ftag}</td>
-      <td><div class="row-actions">
-        <button class="btn" onclick="showDetail('${p.handle}')">Scope</button>
-        <button class="btn" style="color:#60a5fa" onclick="window.open('https://hackerone.com/${p.handle}','_blank')">H1 ↗</button>
-      </div></td>
+      <td><span class="score-circle ${sc}">${p._score}</span></td>
+      <td>
+        <div style="font-weight:700;font-size:13px">${p.name}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">${p.handle}</div>
+      </td>
+      <td>${getBountyDisplay(p)}</td>
+      <td>${types}${freshTag}${managedTag}</td>
+      <td>
+        <button class="action-btn primary-action" onclick="showDetail('${p.handle}')">Strategy</button>
+        <button class="action-btn" onclick="window.open('https://hackerone.com/${p.handle}','_blank')">H1 ↗</button>
+      </td>
     </tr>`;
   }).join('');
-  document.getElementById('tbl').innerHTML=`<div class="table-wrap"><table>
-    <thead><tr><th>Score</th><th>Program</th><th>Max Bounty</th><th>Reports</th><th>Scope</th><th></th></tr></thead>
-    <tbody>${rows}</tbody>
-  </table></div>`;
+
+  document.getElementById('tbl').innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Score</th>
+          <th>Program</th>
+          <th>Max Bounty</th>
+          <th>Tags</th>
+          <th>Actions</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
 }
-function showDetail(handle){
-  const p=all.find(x=>x.handle===handle);
+
+// ─── DETAIL / STRATEGY ────────────────────────────────
+function showDetail(handle) {
+  const p = all.find(x=>x.handle===handle);
   if(!p) return;
-  const items=p.scope.filter(Boolean).length
-    ?p.scope.filter(Boolean).map((s,i)=>`<div class="scope-item"><div class="sdot"></div><span class="tag ${p.scope_types[i]||'url'}">${(p.scope_types[i]||'url').toUpperCase()}</span><span>${s}</span></div>`).join('')
-    :'<div class="scope-item" style="color:#444">Live data mein scope aayega</div>';
-  document.getElementById('detail').innerHTML=`<div class="detail-box">
-    <h3>${p.name} — Target Analysis</h3>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">
-      <div><div style="font-size:10px;color:#666;text-transform:uppercase">Score</div><div style="font-size:20px;font-weight:700;color:#fff;margin-top:3px">${p._score}/100</div></div>
-      <div><div style="font-size:10px;color:#666;text-transform:uppercase">Reports</div><div style="font-size:20px;font-weight:700;color:#fff;margin-top:3px">${(p.reports||0)>0?p.reports.toLocaleString():'—'}</div></div>
-      <div><div style="font-size:10px;color:#666;text-transform:uppercase">Priority</div><div style="font-size:14px;margin-top:6px">${p._score>=70?'🟢 High':p._score>=45?'🟡 Medium':'🔴 Low'}</div></div>
-    </div>
-    <div style="font-size:10px;color:#666;text-transform:uppercase;margin-bottom:8px">In-Scope Assets</div>
-    ${items}
-    <div style="margin-top:12px;display:flex;gap:6px">
-      <button class="btn primary" onclick="window.open('https://hackerone.com/${p.handle}','_blank')">Open on H1 ↗</button>
-      <button class="btn" onclick="document.getElementById('detail').innerHTML=''">Close</button>
-    </div>
-  </div>`;
+
+  const bounty = KNOWN_BOUNTIES[p.handle] || 0;
+  const tips = getHuntingStrategy(p);
+  const sc = p._score>=70?'high':p._score>=45?'med':'low';
+
+  const scopeItems = p.scope.filter(Boolean).length
+    ? p.scope.filter(Boolean).map((s,i) =>
+        `<div class="scope-item">
+          <div class="scope-dot"></div>
+          <span class="tag ${p.scope_types[i]||'url'}">${(p.scope_types[i]||'url').toUpperCase()}</span>
+          <span>${s}</span>
+        </div>`).join('')
+    : '<div class="scope-item" style="color:var(--muted)">Scope details — live data mein aayenge</div>';
+
+  const tipsHtml = tips.map((t,i) =>
+    `<div class="guide-item">
+      <div class="guide-num">${i+1}</div>
+      <div class="guide-text">${t}</div>
+    </div>`).join('');
+
+  const whyHunt = p._score >= 70
+    ? '🟢 <strong>High Priority Target</strong> — High bounty, managed triage, fast response. Ideal for focused hunting.'
+    : p._score >= 45
+    ? '🟡 <strong>Medium Priority</strong> — Decent scope. Good for practice and building reputation.'
+    : '🔴 <strong>Lower Priority</strong> — VDP or low bounty. Good for learning, not for income.';
+
+  document.getElementById('detail').innerHTML = `
+    <div class="detail-panel">
+      <div class="detail-header">
+        <div>
+          <div class="detail-name">${p.name}</div>
+          <div class="detail-handle">hackerone.com/${p.handle}</div>
+        </div>
+        <span class="score-circle ${sc}" style="width:44px;height:44px;font-size:14px;margin-left:auto">${p._score}</span>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-stat">
+          <div class="detail-stat-val" style="color:${bounty>5000?'#2ecc71':'#e8e8f0'}">${bounty>0?'$'+bounty.toLocaleString():p.bounty?'Paid':'VDP'}</div>
+          <div class="detail-stat-label">Max Bounty</div>
+        </div>
+        <div class="detail-stat">
+          <div class="detail-stat-val" style="color:${p.rt<=2?'#2ecc71':p.rt<=4?'#f1c40f':'#e74c3c'}">${p.rt}d</div>
+          <div class="detail-stat-label">Avg Response</div>
+        </div>
+        <div class="detail-stat">
+          <div class="detail-stat-val" style="color:${p.managed?'#a89bff':'#6b6b80'}">${p.managed?'Yes':'No'}</div>
+          <div class="detail-stat-label">Managed Triage</div>
+        </div>
+        <div class="detail-stat">
+          <div class="detail-stat-val" style="color:${isFresh(p)?'#2ecc71':'#e74c3c'}">${isFresh(p)?'FRESH':'HUNTED'}</div>
+          <div class="detail-stat-label">Competition</div>
+        </div>
+      </div>
+
+      <div style="font-size:11px;color:#b8b8cc;background:var(--surface2);border-radius:6px;padding:10px 12px;margin-bottom:14px;border-left:3px solid var(--accent)">
+        ${whyHunt}
+      </div>
+
+      <div class="scope-section">
+        <div class="scope-title">In-Scope Assets</div>
+        ${scopeItems}
+      </div>
+
+      <div class="guide-section">
+        <div class="guide-title">🎯 Hunting Strategy</div>
+        ${tipsHtml}
+      </div>
+
+      <div style="margin-top:14px;display:flex;gap:8px">
+        <button class="btn primary" onclick="window.open('https://hackerone.com/${p.handle}','_blank')">Open H1 Program ↗</button>
+        <button class="btn" onclick="window.open('https://hackerone.com/${p.handle}/hacktivity','_blank')">View Hacktivity ↗</button>
+        <button class="btn" onclick="document.getElementById('detail').innerHTML=''" style="margin-left:auto">✕ Close</button>
+      </div>
+    </div>`;
+
+  document.getElementById('detail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
-function setF(el,f){
+
+// ─── FILTERS & SORT ───────────────────────────────────
+function setF(el, f) {
   document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active');filt=f;
+  el.classList.add('active');
+  filt = f;
+  document.getElementById('detail').innerHTML = '';
   if(all.length) render();
 }
-function loadDemo(){
-  all=DEMO.map(p=>({...p,_score:calcScore(p)}));
-  updateStats();render();
-  const b=document.getElementById('badge');
-  b.textContent='● DEMO';b.className='badge demo';
-  showMsg('','');
+
+function setSort(el, s) {
+  document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  sortBy = s;
+  if(all.length) render();
 }
-async function loadLive(){
-  const user=document.getElementById('h1-user').value.trim();
-  const token=document.getElementById('h1-token').value.trim();
-  if(!user||!token){showMsg('⚠ Username aur token dono daalo.','warn');return;}
-  showMsg('⏳ Fetching from HackerOne...','info');
-  document.getElementById('tbl').innerHTML='<div class="loader">⏳ Programs load ho rahe hain...</div>';
-  const creds=btoa(user+':'+token);
-  try{
-    const resp=await fetch('/api/h1?path=/v1/hackers/programs',{
-      headers:{'Authorization':`Basic ${creds}`,'Accept':'application/json'}
+
+function showGuide() {
+  const g = document.getElementById('api-guide');
+  g.style.display = g.style.display === 'none' ? 'block' : 'none';
+}
+
+// ─── LOAD DEMO ────────────────────────────────────────
+function loadDemo() {
+  all = DEMO.map(p=>({...p, _score:calcScore(p)}));
+  updateStats(); render();
+  const b = document.getElementById('badge');
+  b.textContent = '● DEMO MODE'; b.className = 'status-badge demo';
+  showMsg('', '');
+}
+
+// ─── LOAD LIVE ────────────────────────────────────────
+async function loadLive() {
+  const user = document.getElementById('h1-user').value.trim();
+  const token = document.getElementById('h1-token').value.trim();
+  if(!user||!token) { showMsg('⚠ Username aur API token dono daalo.', 'warn'); return; }
+
+  const b = document.getElementById('badge');
+  b.textContent = '● LOADING...'; b.className = 'status-badge loading';
+  showMsg('⏳ HackerOne API se programs fetch ho rahe hain...', 'info');
+  document.getElementById('tbl').innerHTML = '<div class="loader">Fetching your programs</div>';
+  document.getElementById('progress-wrap').style.display = 'block';
+  document.getElementById('progress').style.width = '30%';
+
+  const creds = btoa(user + ':' + token);
+
+  try {
+    const resp = await fetch(PROXY + '?path=/v1/hackers/programs%3Fpage%5Bsize%5D%3D100', {
+      headers: { 'Authorization': `Basic ${creds}`, 'Accept': 'application/json' }
     });
-    if(resp.status===401) throw new Error('401 — Username ya token galat hai');
-    if(resp.status===403) throw new Error('403 — Token permissions check karo');
-    if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const data=await resp.json();
-    if(data.errors) throw new Error(data.errors[0]?.detail||'H1 API error');
-    const programs=data.data||[];
-    if(!programs.length){showMsg('Koi program nahi mila.','warn');loadDemo();return;}
-    all=programs.map(p=>{
-      const a=p.attributes||{};
-      const inScope=a.structured_scope?.in_scope||[];
-      const st=inScope.map(s=>{
-        const t=(s.asset_type||'').toUpperCase();
+
+    document.getElementById('progress').style.width = '70%';
+
+    if(resp.status === 401) throw new Error('401 — Username ya token galat hai. H1 settings se naya token generate karo.');
+    if(resp.status === 403) throw new Error('403 — Token permissions check karo.');
+    if(!resp.ok) throw new Error(`HTTP ${resp.status} error`);
+
+    const data = await resp.json();
+    if(data.errors) throw new Error(data.errors[0]?.detail || 'H1 API error');
+
+    const programs = data.data || [];
+    if(!programs.length) {
+      showMsg('Koi program nahi mila — H1 pe programs join karo ya invite ka wait karo.', 'warn');
+      loadDemo(); return;
+    }
+
+    document.getElementById('progress').style.width = '90%';
+
+    all = programs.map(p => {
+      const a = p.attributes || {};
+      const inScope = a.structured_scope?.in_scope || [];
+      const st = inScope.map(s => {
+        const t = (s.asset_type||'').toUpperCase();
         if(t==='URL') return 'url';
         if(t==='APPLE_STORE_APP_ID') return 'ios';
         if(t==='GOOGLE_PLAY_APP_ID') return 'android';
         return 'api';
       });
       return {
-        handle:a.handle||p.id||'?',
-        name:a.name||a.handle||'Unknown',
-        bounty:!!a.offers_bounties,
-        max_bounty:0,
-        reports:a.number_of_reports_for_user||0,
-        scope_types:st.length?st:['url'],
-        scope:inScope.slice(0,6).map(s=>s.identifier||s.asset_identifier||'').filter(Boolean),
-        rt:a.average_time_to_first_program_response_in_minutes?Math.max(1,Math.round(a.average_time_to_first_program_response_in_minutes/1440)):5,
-        managed:!!a.triage_active,
+        handle: a.handle || p.id || '?',
+        name: a.name || a.handle || 'Unknown',
+        bounty: !!a.offers_bounties,
+        scope_types: st.length ? st : ['url'],
+        scope: inScope.slice(0,8).map(s=>s.identifier||s.asset_identifier||'').filter(Boolean),
+        rt: a.average_time_to_first_program_response_in_minutes
+          ? Math.max(1, Math.round(a.average_time_to_first_program_response_in_minutes / 1440)) : 5,
+        managed: !!a.triage_active,
+        open_scope: !!a.open_scope,
+        reports_hint: a.number_of_reports_for_user || 0,
       };
-    }).map(p=>({...p,_score:calcScore(p)}));
-    updateStats();render();
-    const b=document.getElementById('badge');
-    b.textContent=`● LIVE (${all.length})`;b.className='badge live';
-    showMsg(`✅ ${all.length} programs loaded!`,'ok');
-  }catch(e){
-    showMsg(`❌ ${e.message}`,'err');
-    document.getElementById('tbl').innerHTML='<div class="empty">Error. Credentials check karo.</div>';
+    }).map(p=>({...p, _score: calcScore(p)}));
+
+    document.getElementById('progress').style.width = '100%';
+    setTimeout(() => { document.getElementById('progress-wrap').style.display = 'none'; }, 500);
+
+    updateStats(); render();
+    b.textContent = `● LIVE (${all.length})`; b.className = 'status-badge live';
+    showMsg(`✅ ${all.length} programs loaded from your HackerOne account!`, 'ok');
+
+  } catch(e) {
+    document.getElementById('progress-wrap').style.display = 'none';
+    showMsg(`❌ ${e.message}`, 'err');
+    document.getElementById('tbl').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Error. Credentials check karo ya Demo load karo.</div></div>`;
+    b.textContent = '● ERROR'; b.className = 'status-badge demo';
   }
 }
+
+// ─── INIT ─────────────────────────────────────────────
 loadDemo();
 </script>
 </body>
