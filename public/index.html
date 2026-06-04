@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>H1 Recon Console</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Courier New",monospace;background:#0f0f0f;color:#e0e0e0;padding:24px;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto}
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #2a2a2a}
+.logo{font-size:14px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#888}
+.logo span{color:#fff}
+.badge{font-size:11px;padding:3px 10px;border-radius:4px;margin-left:auto;font-weight:600}
+.badge.demo{background:#3a2e00;color:#fbbf24}
+.badge.live{background:#003a1a;color:#34d399}
+.badge.err{background:#3a0000;color:#f87171}
+.api-row{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;margin-bottom:8px}
+input{font-family:"Courier New",monospace;font-size:12px;padding:8px 12px;border:1px solid #2a2a2a;border-radius:6px;background:#1a1a1a;color:#e0e0e0;width:100%}
+input:focus{outline:none;border-color:#555}
+.btn{font-family:"Courier New",monospace;font-size:12px;padding:8px 16px;border:1px solid #2a2a2a;border-radius:6px;background:#1a1a1a;color:#e0e0e0;cursor:pointer;white-space:nowrap;transition:all .15s}
+.btn:hover{background:#2a2a2a;border-color:#444}
+.btn.primary{background:#e0e0e0;color:#0f0f0f;border-color:#e0e0e0;font-weight:700}
+.btn.primary:hover{background:#fff}
+.notice{font-size:11px;padding:8px 12px;border-radius:6px;margin-bottom:12px;line-height:1.6;border:1px solid}
+.notice.info{background:#001a33;color:#60a5fa;border-color:#1e3a5f}
+.notice.warn{background:#2a1a00;color:#fbbf24;border-color:#5a3e00}
+.notice.err{background:#2a0000;color:#f87171;border-color:#5a1a1a}
+.notice.ok{background:#002a12;color:#34d399;border-color:#005a28}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.stat{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:12px 14px}
+.stat-n{font-size:22px;font-weight:700;color:#fff}
+.stat-l{font-size:10px;color:#666;margin-top:3px;text-transform:uppercase;letter-spacing:.06em}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.pill{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid #2a2a2a;background:#1a1a1a;color:#888;cursor:pointer;transition:all .15s}
+.pill:hover{border-color:#555;color:#ccc}
+.pill.active{background:#e0e0e0;color:#0f0f0f;border-color:#e0e0e0;font-weight:700}
+.table-wrap{border:1px solid #2a2a2a;border-radius:10px;overflow:hidden;margin-bottom:14px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead tr{background:#1a1a1a}
+th{padding:9px 11px;text-align:left;color:#666;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid #2a2a2a}
+td{padding:10px 11px;border-bottom:1px solid #1a1a1a;color:#ccc;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#1a1a1a}
+.score{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-size:11px;font-weight:700}
+.score.high{background:#003a1a;color:#34d399}
+.score.med{background:#2a1a00;color:#fbbf24}
+.score.low{background:#2a0000;color:#f87171}
+.tag{display:inline-block;font-size:10px;padding:2px 6px;border-radius:3px;margin-right:3px;font-weight:600}
+.tag.url{background:#001a33;color:#60a5fa}
+.tag.ios{background:#1a0033;color:#a78bfa}
+.tag.android{background:#003a1a;color:#34d399}
+.tag.api{background:#2a1a00;color:#fbbf24}
+.tag.fresh{background:#003a1a;color:#34d399}
+.row-actions{display:flex;gap:4px}
+.empty{text-align:center;padding:3rem 1rem;color:#444;font-size:13px}
+.detail-box{background:#1a1a1a;border-radius:10px;border:1px solid #2a2a2a;padding:16px;margin-bottom:14px}
+.detail-box h3{font-size:14px;font-weight:700;margin-bottom:10px;color:#fff}
+.scope-item{padding:5px 0;border-bottom:1px solid #2a2a2a;display:flex;align-items:center;gap:8px;color:#888;font-size:11px}
+.scope-item:last-child{border:none}
+.sdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:#34d399}
+.loader{text-align:center;padding:2rem;color:#666;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="logo"><span>H1</span> Recon Console</div>
+    <span class="badge demo" id="badge">● DEMO</span>
+  </div>
+
+  <div class="notice info">
+    <strong>Setup:</strong> H1 username + API token daalo → Fetch karo. Proxy same domain pe hai, CORS nahi hoga.
+  </div>
+
+  <div class="api-row">
+    <input type="text" id="h1-user" placeholder="HackerOne username" autocomplete="off">
+    <input type="password" id="h1-token" placeholder="HackerOne API token" autocomplete="off">
+    <button class="btn primary" onclick="loadLive()">▶ Fetch</button>
+  </div>
+  <div style="display:flex;gap:6px;margin-bottom:16px;justify-content:flex-end">
+    <button class="btn" onclick="loadDemo()">Demo data</button>
+  </div>
+
+  <div id="msg"></div>
+
+  <div class="stats-row">
+    <div class="stat"><div class="stat-n" id="s-total">—</div><div class="stat-l">Programs</div></div>
+    <div class="stat"><div class="stat-n" id="s-pay">—</div><div class="stat-l">Paying</div></div>
+    <div class="stat"><div class="stat-n" id="s-fresh">—</div><div class="stat-l">Fresh targets</div></div>
+    <div class="stat"><div class="stat-n" id="s-avg">—</div><div class="stat-l">Avg score</div></div>
+  </div>
+
+  <div class="filters">
+    <span class="pill active" onclick="setF(this,'all')">All</span>
+    <span class="pill" onclick="setF(this,'paying')">💰 Paying</span>
+    <span class="pill" onclick="setF(this,'fresh')">🌿 Fresh</span>
+    <span class="pill" onclick="setF(this,'web')">🌐 Web</span>
+    <span class="pill" onclick="setF(this,'mobile')">📱 Mobile</span>
+    <span class="pill" onclick="setF(this,'api')">⚙️ API</span>
+    <span class="pill" onclick="setF(this,'top')">⭐ Score ≥ 70</span>
+  </div>
+
+  <div id="tbl"><div class="empty">Load programs to begin recon</div></div>
+  <div id="detail"></div>
+</div>
+
+<script>
+let all = [], filt = 'all';
+
+const DEMO = [
+  {handle:'shopify',name:'Shopify',bounty:true,max_bounty:20000,reports:4200,scope_types:['url','android','ios'],scope:['*.shopify.com','*.myshopify.com','Shopify Android','Shopify iOS'],rt:2,managed:true},
+  {handle:'gitlab',name:'GitLab',bounty:true,max_bounty:12000,reports:3100,scope_types:['url','api'],scope:['gitlab.com','*.gitlab.com'],rt:3,managed:true},
+  {handle:'newrelic',name:'New Relic',bounty:true,max_bounty:5000,reports:410,scope_types:['url','api'],scope:['*.newrelic.com','NR API'],rt:1,managed:true},
+  {handle:'semrush',name:'Semrush',bounty:true,max_bounty:4000,reports:280,scope_types:['url','api'],scope:['*.semrush.com','semrush API'],rt:2,managed:true},
+  {handle:'grab',name:'Grab',bounty:true,max_bounty:10000,reports:520,scope_types:['url','api','android','ios'],scope:['*.grab.com','Grab API','Grab Android','Grab iOS'],rt:2,managed:true},
+  {handle:'instacart',name:'Instacart',bounty:true,max_bounty:3000,reports:175,scope_types:['url'],scope:['instacart.com','*.instacart.com'],rt:3,managed:true},
+  {handle:'twitter',name:'X / Twitter',bounty:true,max_bounty:15000,reports:8900,scope_types:['url','api','ios','android'],scope:['twitter.com','api.twitter.com','iOS','Android'],rt:7,managed:false},
+  {handle:'curl',name:'curl / libcurl',bounty:false,max_bounty:0,reports:190,scope_types:['api'],scope:['curl source code'],rt:1,managed:false},
+  {handle:'automattic',name:'Automattic',bounty:true,max_bounty:7500,reports:1200,scope_types:['url','api'],scope:['wordpress.com','Jetpack'],rt:3,managed:true},
+  {handle:'dropbox',name:'Dropbox',bounty:true,max_bounty:32768,reports:6700,scope_types:['url','api','android','ios'],scope:['dropbox.com','api.dropboxapi.com','Android','iOS'],rt:5,managed:true},
+];
+
+function calcScore(p){
+  let s=0;
+  if(p.bounty) s+=25;
+  s+=p.max_bounty>=10000?20:p.max_bounty>=5000?15:p.max_bounty>=1000?8:0;
+  s+=Math.max(0,30-Math.round((p.reports||0)/200));
+  s+=p.rt<=2?15:p.rt<=4?8:3;
+  if(p.managed) s+=10;
+  s+=Math.min(new Set(p.scope_types).size*4,12);
+  return Math.min(s,100);
+}
+function isFresh(p){return(p.reports||0)<600;}
+function showMsg(txt,type){document.getElementById('msg').innerHTML=txt?`<div class="notice ${type}">${txt}</div>`:'';}
+function updateStats(){
+  document.getElementById('s-total').textContent=all.length;
+  document.getElementById('s-pay').textContent=all.filter(p=>p.bounty).length;
+  document.getElementById('s-fresh').textContent=all.filter(p=>isFresh(p)).length;
+  document.getElementById('s-avg').textContent=all.length?Math.round(all.reduce((a,p)=>a+p._score,0)/all.length):'—';
+}
+function render(){
+  let progs=[...all];
+  if(filt==='paying') progs=progs.filter(p=>p.bounty);
+  else if(filt==='fresh') progs=progs.filter(p=>isFresh(p));
+  else if(filt==='web') progs=progs.filter(p=>p.scope_types.includes('url'));
+  else if(filt==='mobile') progs=progs.filter(p=>p.scope_types.includes('ios')||p.scope_types.includes('android'));
+  else if(filt==='api') progs=progs.filter(p=>p.scope_types.includes('api'));
+  else if(filt==='top') progs=progs.filter(p=>p._score>=70);
+  progs.sort((a,b)=>b._score-a._score);
+  if(!progs.length){document.getElementById('tbl').innerHTML='<div class="table-wrap"><div class="empty">No programs match</div></div>';return;}
+  const rows=progs.map(p=>{
+    const sc=p._score>=70?'high':p._score>=45?'med':'low';
+    const types=[...new Set(p.scope_types)].slice(0,3).map(t=>`<span class="tag ${t}">${t.toUpperCase()}</span>`).join('');
+    const ftag=isFresh(p)?'<span class="tag fresh">FRESH</span>':'';
+    return `<tr>
+      <td><span class="score ${sc}">${p._score}</span></td>
+      <td style="font-weight:700;color:#fff">${p.name}<br><span style="font-size:10px;color:#555">${p.handle}</span></td>
+      <td>${p.bounty?`<span style="color:#34d399;font-weight:700">$${p.max_bounty.toLocaleString()}</span>`:'<span style="color:#444">VDP</span>'}</td>
+      <td style="color:${(p.reports||0)>2000?'#f87171':'#ccc'}">${(p.reports||0)>0?p.reports.toLocaleString():'—'}</td>
+      <td>${types}${ftag}</td>
+      <td><div class="row-actions">
+        <button class="btn" onclick="showDetail('${p.handle}')">Scope</button>
+        <button class="btn" style="color:#60a5fa" onclick="window.open('https://hackerone.com/${p.handle}','_blank')">H1 ↗</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('tbl').innerHTML=`<div class="table-wrap"><table>
+    <thead><tr><th>Score</th><th>Program</th><th>Max Bounty</th><th>Reports</th><th>Scope</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function showDetail(handle){
+  const p=all.find(x=>x.handle===handle);
+  if(!p) return;
+  const items=p.scope.filter(Boolean).length
+    ?p.scope.filter(Boolean).map((s,i)=>`<div class="scope-item"><div class="sdot"></div><span class="tag ${p.scope_types[i]||'url'}">${(p.scope_types[i]||'url').toUpperCase()}</span><span>${s}</span></div>`).join('')
+    :'<div class="scope-item" style="color:#444">Live data mein scope aayega</div>';
+  document.getElementById('detail').innerHTML=`<div class="detail-box">
+    <h3>${p.name} — Target Analysis</h3>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">
+      <div><div style="font-size:10px;color:#666;text-transform:uppercase">Score</div><div style="font-size:20px;font-weight:700;color:#fff;margin-top:3px">${p._score}/100</div></div>
+      <div><div style="font-size:10px;color:#666;text-transform:uppercase">Reports</div><div style="font-size:20px;font-weight:700;color:#fff;margin-top:3px">${(p.reports||0)>0?p.reports.toLocaleString():'—'}</div></div>
+      <div><div style="font-size:10px;color:#666;text-transform:uppercase">Priority</div><div style="font-size:14px;margin-top:6px">${p._score>=70?'🟢 High':p._score>=45?'🟡 Medium':'🔴 Low'}</div></div>
+    </div>
+    <div style="font-size:10px;color:#666;text-transform:uppercase;margin-bottom:8px">In-Scope Assets</div>
+    ${items}
+    <div style="margin-top:12px;display:flex;gap:6px">
+      <button class="btn primary" onclick="window.open('https://hackerone.com/${p.handle}','_blank')">Open on H1 ↗</button>
+      <button class="btn" onclick="document.getElementById('detail').innerHTML=''">Close</button>
+    </div>
+  </div>`;
+}
+function setF(el,f){
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');filt=f;
+  if(all.length) render();
+}
+function loadDemo(){
+  all=DEMO.map(p=>({...p,_score:calcScore(p)}));
+  updateStats();render();
+  const b=document.getElementById('badge');
+  b.textContent='● DEMO';b.className='badge demo';
+  showMsg('','');
+}
+async function loadLive(){
+  const user=document.getElementById('h1-user').value.trim();
+  const token=document.getElementById('h1-token').value.trim();
+  if(!user||!token){showMsg('⚠ Username aur token dono daalo.','warn');return;}
+  showMsg('⏳ Fetching from HackerOne...','info');
+  document.getElementById('tbl').innerHTML='<div class="loader">⏳ Programs load ho rahe hain...</div>';
+  const creds=btoa(user+':'+token);
+  try{
+    const resp=await fetch('/api/h1',{
+      headers:{'Authorization':`Basic ${creds}`,'Accept':'application/json'}
+    });
+    if(resp.status===401) throw new Error('401 — Username ya token galat hai');
+    if(resp.status===403) throw new Error('403 — Token permissions check karo');
+    if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data=await resp.json();
+    if(data.errors) throw new Error(data.errors[0]?.detail||'H1 API error');
+    const programs=data.data||[];
+    if(!programs.length){showMsg('Koi program nahi mila.','warn');loadDemo();return;}
+    all=programs.map(p=>{
+      const a=p.attributes||{};
+      const inScope=a.structured_scope?.in_scope||[];
+      const st=inScope.map(s=>{
+        const t=(s.asset_type||'').toUpperCase();
+        if(t==='URL') return 'url';
+        if(t==='APPLE_STORE_APP_ID') return 'ios';
+        if(t==='GOOGLE_PLAY_APP_ID') return 'android';
+        return 'api';
+      });
+      return {
+        handle:a.handle||p.id||'?',
+        name:a.name||a.handle||'Unknown',
+        bounty:!!a.offers_bounties,
+        max_bounty:0,
+        reports:a.number_of_reports_for_user||0,
+        scope_types:st.length?st:['url'],
+        scope:inScope.slice(0,6).map(s=>s.identifier||s.asset_identifier||'').filter(Boolean),
+        rt:a.average_time_to_first_program_response_in_minutes?Math.max(1,Math.round(a.average_time_to_first_program_response_in_minutes/1440)):5,
+        managed:!!a.triage_active,
+      };
+    }).map(p=>({...p,_score:calcScore(p)}));
+    updateStats();render();
+    const b=document.getElementById('badge');
+    b.textContent=`● LIVE (${all.length})`;b.className='badge live';
+    showMsg(`✅ ${all.length} programs loaded!`,'ok');
+  }catch(e){
+    showMsg(`❌ ${e.message}`,'err');
+    document.getElementById('tbl').innerHTML='<div class="empty">Error. Credentials check karo.</div>';
+  }
+}
+loadDemo();
+</script>
+</body>
+</html>
